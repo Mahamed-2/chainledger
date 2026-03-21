@@ -1,0 +1,263 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ----------------------------------------------------------------------------
+// Core Product Model (DPP Entry Point)
+// Aligned with ESPR requirements and Chainledger identification
+// ----------------------------------------------------------------------------
+model Product {
+  id                    String    @id @default(uuid())
+  gs1Uri                String    @unique // Required: GS1 Digital Link
+  reoId                 String    // Required: Responsible Economic Operator ID
+  shaclValidationStatus String    // Validation status (Valid, Invalid, Pending)
+  accessRules           String    // JSON string for field-level security rules
+  eidasAccessLevel      String    @default("low") // eIDAS 2.0 Identity level
+
+  sku                   String    @unique
+  name                  String
+  brand                 String
+  category              String
+  description           String?
+
+  materials             Material[]
+  processes             Process[]
+  footprint             Footprint?
+  certifications        Certification[]
+  qualityControls       QualityControl[]
+  circularity           CircularityMetrics?
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+// ----------------------------------------------------------------------------
+// Supply Chain & Material Traceability
+// ----------------------------------------------------------------------------
+model Material {
+  id          String   @id @default(uuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  name        String   // e.g., "Organic Cotton"
+  type        String   // e.g., "Fiber", "Fabric", "Trim"
+  percentage  Float    // Material composition %
+  origin      String   // e.g., "Izmir, Turkey"
+  latitude    Float    // For Map Visualization
+  longitude   Float
+  certified   Boolean  // Compliance Flag
+  standard    String?  // e.g., "GOTS"
+  supplierId  String?
+  supplier    Supplier? @relation(fields: [supplierId], references: [id])
+  quality     MaterialQuality?
+}
+
+model Process {
+  id          String   @id @default(uuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  stage       String   // e.g., "Spinning", "Sewing", "Shipping"
+  location    String   // e.g., "Bursa, Turkey"
+  latitude    Float
+  longitude   Float
+  timestamp   DateTime
+  hash        String   // Simulated Blockchain Hash for Immutability
+  verified    Boolean  // Audit Status
+  supplierId    String?
+  supplier      Supplier?  @relation(fields: [supplierId], references: [id])
+  chemicalTreatments ChemicalTreatment[]
+  dyeingProcesses    DyeingProcess[]
+  weavingProcesses   WeavingKnittingProcess[]
+  socialCompliance   SocialCompliance?
+}
+
+// ----------------------------------------------------------------------------
+// Actors & Suppliers
+// ----------------------------------------------------------------------------
+model Supplier {
+  id          String      @id @default(uuid())
+  name        String
+  tier        Int         // 1 (Direct), 2 (Fabric), 3 (Yarn), 4 (Raw)
+  location    String
+  certified   Boolean
+  
+  // Hierarchical relationship for deep supply chain tracing
+  parentId    String?
+  parent      Supplier?   @relation("SupplierHierarchy", fields: [parentId], references: [id])
+  children    Supplier[]  @relation("SupplierHierarchy")
+
+  materials   Material[]
+  processes   Process[]
+}
+
+// ----------------------------------------------------------------------------
+// Environmental Footprint (EU DPP Requirement)
+// ----------------------------------------------------------------------------
+model Footprint {
+  id          String   @id @default(uuid())
+  productId   String   @unique
+  product     Product  @relation(fields: [productId], references: [id])
+  co2         Float    // kg CO2e
+  water       Float    // Liters
+  energy      Float    // kWh
+  recycled    Float    // Percentage
+  score       String   // e.g., "A", "B", "C" (EU Energy Label style)
+}
+
+// ----------------------------------------------------------------------------
+// Certifications & Compliance
+// ----------------------------------------------------------------------------
+model Certification {
+  id          String   @id @default(uuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  name        String   // e.g., "GOTS"
+  number      String   // Certificate ID
+  expiry      DateTime
+  documentUrl String   // Mock URL
+}
+
+// ----------------------------------------------------------------------------
+// Audit & Access Logging (GDPR Article 30)
+// ----------------------------------------------------------------------------
+model AccessLog {
+  id        String   @id @default(uuid())
+  timestamp DateTime @default(now())
+  gs1Uri    String   // The DPP accessed
+  roleUser  String   // e.g., "consumer", "auditor", "recycler"
+  action    String   // e.g., "READ_PASSPORT", "VERIFY_HASH"
+  ipHash    String   // Anonymized IP hash
+}
+
+// ----------------------------------------------------------------------------
+// Prompt 11: Expanded Textile Data Schema
+// ----------------------------------------------------------------------------
+
+model MaterialQuality {
+  id                  String   @id @default(uuid())
+  materialId          String   @unique
+  material            Material @relation(fields: [materialId], references: [id])
+  fiberLength         Float    // mm
+  fiberFineness       Float    // micronaire
+  tensileStrength     Float    // MPa
+  moistureRegain      Float    // %
+  colorGrade          String
+  impurityLevel       Float    // %
+  harvestDate         DateTime
+  batchNumber         String
+  farmCertification   String
+  pesticideFree       Boolean
+  waterSource         String
+  soilHealthScore     Int
+  carbonSequestration Float
+}
+
+model ChemicalTreatment {
+  id                  String   @id @default(uuid())
+  processId           String
+  process             Process  @relation(fields: [processId], references: [id])
+  treatmentType       String
+  chemicalName        String
+  chemicalCAS         String
+  concentration       Float
+  applicationMethod   String
+  temperature         Float
+  duration            Int
+  pHLevel             Float
+  zdhcCompliant       Boolean
+  oekoTexCertified    Boolean
+  sideEffects         String   // JSON string
+  wastewaterTreatment String
+  chemicalRecovery    Float
+  allergenInfo        String
+}
+
+model DyeingProcess {
+  id                  String   @id @default(uuid())
+  processId           String
+  process             Process  @relation(fields: [processId], references: [id])
+  dyeType             String
+  dyeClass            String
+  colorFastness       String   // JSON string {washing:5, light:8, rubbing:5, perspiration:5}
+  dyeingMethod        String
+  liquorRatio         Float
+  waterConsumption    Float
+  energyConsumption   Float
+  co2Emissions        Float
+  recyclingSystem     String
+  digitalPrinting     Boolean
+  waterlessDyeing     Boolean
+}
+
+model WeavingKnittingProcess {
+  id                  String   @id @default(uuid())
+  processId           String
+  process             Process  @relation(fields: [processId], references: [id])
+  technique           String
+  machineType         String
+  gauge               Int
+  density             Float
+  fabricWeight        Float
+  fabricWidth         Float
+  shrinkageRate       Float
+  pillingResistance   Int
+  abrasionResistance  Int
+  productionSpeed     Float
+  defectRate          Float
+}
+
+model QualityControl {
+  id                  String   @id @default(uuid())
+  productId           String
+  product             Product  @relation(fields: [productId], references: [id])
+  inspectionDate      DateTime
+  inspectorId         String
+  testType            String
+  testResult          String
+  testStandard        String
+  measurements        String   // JSON string
+  defects             String   // JSON string
+  overallGrade        String
+  certificateUrl      String
+}
+
+model SocialCompliance {
+  id                  String   @id @default(uuid())
+  processId           String   @unique
+  process             Process  @relation(fields: [processId], references: [id])
+  factoryName         String
+  auditStandard       String
+  auditDate           DateTime
+  auditResult         String
+  workerCount         Int
+  femaleWorkerPercentage Float
+  livingWageCompliance Boolean
+  workingHours        String   // JSON string
+  safetyIncidents     Int
+  childLaborFree      Boolean
+  forcedLaborFree     Boolean
+  unionAccess         Boolean
+  grievanceMechanism  Boolean
+}
+
+model CircularityMetrics {
+  id                  String   @id @default(uuid())
+  productId           String   @unique
+  product             Product  @relation(fields: [productId], references: [id])
+  recyclability       Float
+  biodegradability    Float
+  compostability      Boolean
+  disassemblyTime     Int
+  monoMaterial        Boolean
+  recycledContent     Float
+  upcyclingPotential  String
+  takeBackProgram     Boolean
+  repairabilityScore  Float
+  sparePartsAvailable Boolean
+  estimatedLifespan   Int
+  careInstructions    String   // JSON string
+}
