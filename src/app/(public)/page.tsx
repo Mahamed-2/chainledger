@@ -4,7 +4,13 @@ import prisma from '@/lib/db';
 
 export default async function Home() {
   // Get the seeded demo product to link directly to its passport
-  const product = await prisma.product.findFirst();
+  // Adding try-catch to prevent "Server-side exception" if DB is temporarily unreachable on Vercel
+  let product = null;
+  try {
+    product = await prisma.product.findFirst();
+  } catch (error) {
+    console.error("Prisma error on Home page:", error);
+  }
 
   return (
     <main className="min-h-screen relative overflow-hidden bg-white">
