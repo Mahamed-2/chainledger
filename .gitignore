@@ -1,0 +1,55 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+.env
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# prisma
+/src/generated/prisma
+
+# Ignore non-webapp documentation files in root
+/*.docx
+/*.pdf
+/*.md
+!/README.md
+!/ Professional AI Agent Prompts for DPP Demo Development.md
+# Wait, user might want to keep some md files. I'll just ignore the specific ones I saw.
+/Digital Product Passports and the Roadmap to Supply Chain Circularity_ A Strategic Technical Framework.docx
+/Professional AI Agent Prompts for DPP Demo Development.md
+/Step 1 (Revised)_ Digital Product Passport (DPP) - Demo_Pitch Technology Stack.docx
+/Step 1_ Digital Product Passport (DPP) Development - Text Description.docx
+/Step 2_ Visual Description & UI_UX Design for DPP Demo.docx
+/Step 3_ Pitch Script & Narrative for Co-Founders.docx
+/Updated System Architecture & Implementation Plan (EU_Sweden Focus).docx
+/_Step 4_ Web App Demo Code Scaffold (Next.docx
+/inriver_pim_buyers_guide_2026_en.pdf
