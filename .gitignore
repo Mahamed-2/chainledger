@@ -37,6 +37,10 @@ next-env.d.ts
 # prisma
 /src/generated/prisma
 
+# playwright
+/playwright-report
+/test-results
+
 # Ignore non-webapp documentation files in root
 /*.docx
 /*.pdf
