@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { ArrowRight, Leaf, ShieldCheck, QrCode } from 'lucide-react';
 import prisma from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   // Get the seeded demo product to link directly to its passport
   // Adding try-catch to prevent "Server-side exception" if DB is temporarily unreachable on Vercel
