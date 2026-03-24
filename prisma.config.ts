@@ -11,6 +11,6 @@ export default defineConfig({
   },
   engine: "classic",
   datasource: {
-    url: "file:./prisma/dev.db",
+    url: "file:/Users/ahlam/Desktop/Chain_system_certificate/prisma/dev.db",
   },
 });

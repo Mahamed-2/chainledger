@@ -14,10 +14,13 @@ datasource db {
 model Product {
   id                    String    @id @default(uuid())
   gs1Uri                String    @unique // Required: GS1 Digital Link
+  dataCarrier           String    @default("QR") // 'QR', 'NFC', 'RFID_UHF'
   reoId                 String    // Required: Responsible Economic Operator ID
+  resolverUrl           String    @default("https://dpp.chainledger.io/resolve")
   shaclValidationStatus String    // Validation status (Valid, Invalid, Pending)
   accessRules           String    // JSON string for field-level security rules
   eidasAccessLevel      String    @default("low") // eIDAS 2.0 Identity level
+  dataModelVersion      String    @default("1.0.0")
 
   sku                   String    @unique
   name                  String
@@ -46,6 +49,10 @@ model Material {
   name        String   // e.g., "Organic Cotton"
   type        String   // e.g., "Fiber", "Fabric", "Trim"
   percentage  Float    // Material composition %
+  gs1Class    String?  // GS1 product classification code
+  epClass     String?  // eCl@ss classification
+  chemicalCAS String?  // REACH chemical registration
+  tierLevel   Int      @default(1) // 1-4 supply chain tier
   origin      String   // e.g., "Izmir, Turkey"
   latitude    Float    // For Map Visualization
   longitude   Float
@@ -260,4 +267,32 @@ model CircularityMetrics {
   sparePartsAvailable Boolean
   estimatedLifespan   Int
   careInstructions    String   // JSON string
+}
+
+// ----------------------------------------------------------------------------
+// Access & Validation (CIRPASS §5)
+// ----------------------------------------------------------------------------
+model AccessRule {
+  id              String   @id @default(uuid())
+  stakeholderType String   // MARKET, BRAND, SUPPLY_CHAIN, CONSUMER, TIER2
+  eidasLevel      String   // low, substantial, high
+  dataFields      String   // JSON string (allowed fields per role)
+  purpose         String   // GDPR Article 6 lawful basis (e.g., 'legitimate_interests')
+}
+
+model ValidationRule {
+  id                  String   @id @default(uuid())
+  ruleType            String   // mandatory, recommended, optional
+  shaclShape          String   // SHACL shape definition (or URI)
+  errorMessage        String   // Human-readable error
+  regulatoryReference String   // ESPR article/annex
+}
+
+model CircularityAction {
+  id                  String   @id @default(uuid())
+  actionType          String   // repair, upcycle, resale, recycle, landfill
+  environmentalImpact String   // JSON string (CO2 saved, water saved)
+  feedbackData        String   // JSON string (user feedback)
+  platform            String?  // Vinted, Sellpy
+  createdAt           DateTime @default(now())
 }

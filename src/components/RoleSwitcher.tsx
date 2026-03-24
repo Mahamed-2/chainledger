@@ -43,43 +43,42 @@ export default function RoleSwitcher() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-[9999] bg-white border border-gray-200 shadow-2xl rounded-2xl p-4 w-72 transition-all">
+    <div className="fixed bottom-4 right-4 z-[9999] bg-slate-900/80 border border-white/10 shadow-2xl rounded-2xl p-4 w-72 backdrop-blur-xl transition-all ring-1 ring-white/10">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <ShieldAlert className="w-5 h-5 text-indigo-600" />
-          <h3 className="font-bold text-gray-900 text-sm">eIDAS 2.0 Simulator</h3>
+          <ShieldAlert className="w-5 h-5 text-indigo-400" />
+          <h3 className="font-bold text-white text-sm">eIDAS 2.0 Simulator</h3>
         </div>
-        <button onClick={() => setIsMinimized(true)} className="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100 transition-colors">
+        <button onClick={() => setIsMinimized(true)} className="text-slate-400 hover:text-white p-1 rounded-md hover:bg-white/5 transition-colors">
           <X className="w-4 h-4" />
         </button>
       </div>
-      <p className="text-xs text-gray-500 mb-3 leading-tight">Switch your identity to see how Chainledger field-level security adapts the DPP.</p>
+      <p className="text-[10px] text-slate-400 mb-4 leading-relaxed font-medium">Switch identities to see how ChainLedger field-level security adapts the DPP view.</p>
       
       <div className="space-y-2">
-        <button 
-          onClick={() => changeRole('public')}
-          className={`w-full text-left px-3 py-2 text-sm rounded-lg border transition ${role === 'public' ? 'border-indigo-600 bg-indigo-50 text-indigo-700 font-bold' : 'border-gray-200 hover:bg-gray-50'}`}
-        >
-          Consumer (Public)
-        </button>
-        <button 
-          onClick={() => changeRole('recycler')}
-          className={`w-full text-left px-3 py-2 text-sm rounded-lg border transition ${role === 'recycler' ? 'border-emerald-600 bg-emerald-50 text-emerald-700 font-bold' : 'border-gray-200 hover:bg-gray-50'}`}
-        >
-          Recycler (B2B)
-        </button>
-        <button 
-          onClick={() => changeRole('auditor')}
-          className={`w-full text-left px-3 py-2 text-sm rounded-lg border transition ${role === 'auditor' ? 'border-blue-600 bg-blue-50 text-blue-700 font-bold' : 'border-gray-200 hover:bg-gray-50'}`}
-        >
-          Auditor / Regulator
-        </button>
-        <button 
-          onClick={() => changeRole('admin')}
-          className={`w-full text-left px-3 py-2 text-sm rounded-lg border transition ${role === 'admin' ? 'border-gray-800 bg-gray-900 text-white font-bold' : 'border-gray-200 hover:bg-gray-50'}`}
-        >
-          Brand Admin
-        </button>
+        {[
+          { id: 'public', label: 'Consumer (Public)', color: 'border-emerald-500/50 bg-emerald-500/10 text-emerald-400' },
+          { id: 'recycler', label: 'Recycler (B2B)', color: 'border-amber-500/50 bg-amber-500/10 text-amber-400' },
+          { id: 'analyst', label: 'Market Analyst', color: 'border-blue-500/50 bg-blue-500/10 text-blue-400' },
+          { id: 'supplier', label: 'Supply Chain Partner', color: 'border-purple-500/50 bg-purple-500/10 text-purple-400' },
+          { id: 'admin', label: 'Brand Admin (Full)', color: 'border-indigo-500/50 bg-indigo-500/10 text-indigo-400' },
+        ].map((btn) => (
+          <button 
+            key={btn.id}
+            onClick={() => changeRole(btn.id)}
+            className={`w-full text-left px-3 py-2 text-xs rounded-lg border transition-all duration-200 ${
+              role === btn.id 
+                ? `${btn.color} font-black ring-1 ring-white/10` 
+                : 'border-white/5 bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
+            }`}
+          >
+            {btn.label}
+          </button>
+        ))}
+      </div>
+      <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
+        <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Secured by REO</span>
+        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
       </div>
     </div>
   );
